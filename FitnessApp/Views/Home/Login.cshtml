@@ -1,0 +1,29 @@
+﻿@model FitnessApp.UserProfile
+
+@{
+    ViewBag.Title = "Login";
+}
+
+
+@using (Html.BeginForm("Login", "Home", FormMethod.Post, new { @class = "form-signin" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <h1 class="h3 mb-3 font-weight-normal">Log in</h1>
+    <label for="Username" class="sr-only">Email address</label><br />
+    @Html.TextBoxFor(a => a.Username, new { @class = "form-control", placeholder = "Email Address", required = "required", autofocus = "autofocus" })
+    <label for="inputPassword" class="sr-only">Password</label><br />
+    @Html.PasswordFor(a => a.Password, new { @class = "form-control", placeholder = "Password", required = "required", autofocus = "autofocus" })
+    <br />
+    if (@ViewBag.Message != null)
+    {
+        <div style="color:red;">
+            @ViewBag.Message
+        </div><br />
+    }
+    <a href="/Home/Register">Register</a>
+    <button class="btn btn-lg btn-primary" style="float:right;" type="submit">Log in</button>
+}
+
+

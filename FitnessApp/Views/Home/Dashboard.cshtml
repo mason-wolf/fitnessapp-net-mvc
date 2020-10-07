@@ -1,0 +1,39 @@
+﻿@model FitnessApp.UserProfile
+
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<div class="nav">
+
+</div>
+
+<main role="main">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 sidebar">
+                <a href="#">Create Plan</a><br />
+                <a href="#">Add Workout</a><br />
+            </div>
+            @if (Session["Username"] != null)
+            {
+                if (@ViewBag.NoWorkouts != null)
+                {
+                    <div class="col-md-8 content" style="text-align:center;">@ViewBag.NoWorkouts</div>
+                }
+                else
+                {
+                    <div class="col-md-8 content">
+                        @foreach (Workout workout in Model.Workouts)
+                        {
+                            if (workout != null)
+                            {
+                                @workout.Date
+                            }
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</main>
