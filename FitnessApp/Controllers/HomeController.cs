@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace FitnessApp.Controllers
 {
@@ -48,6 +50,7 @@ namespace FitnessApp.Controllers
                     {
                         Session["UserId"] = userProfile.UserId.ToString();
                         Session["Username"] = userProfile.Username.ToString();
+                        FormsAuthentication.SetAuthCookie(userProfile.Username, false);
                         return RedirectToAction("Dashboard", new { id = user.UserId });
                     }
                     else
@@ -107,7 +110,7 @@ namespace FitnessApp.Controllers
             return View();
         }
 
-      //  [UserAuthorization(Keys = "User")]
+       [UserAuthorization(AccessLevel = "User")]
         public ActionResult Dashboard(int id)
         {
             if (Session["Username"] != null)

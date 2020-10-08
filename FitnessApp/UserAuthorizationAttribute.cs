@@ -10,18 +10,31 @@ namespace FitnessApp
 {
     public class UserAuthorizationAttribute : AuthorizeAttribute
     {
-        public string Keys
-        {
-            get { return Keys; }
-            set
-            {
-                Roles = value;
-            }
-        }
+        public string AccessLevel { get; set; }
 
         protected override bool AuthorizeCore(HttpContextBase httpContext)
         {
-            return base.AuthorizeCore(httpContext);
+            bool authorized = false;
+
+            // Check if a session has been established, query the database for that user's role and return true if authorized.
+            if (httpContext.Session["Username"] != null)
+            {
+                string username = httpContext.Session["Username"].ToString();
+
+                if (!string.IsNullOrEmpty(username))
+                {
+                    using (FitnessAppDb db = new FitnessAppDb())
+                    {
+                        var userRole = (from users in db.UserProfiles where users.Username == username select new { users.Role }).FirstOrDefault();
+
+                        if (userRole.Role == "User")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return authorized;
         }
 
         public override void OnAuthorization(AuthorizationContext filterContext)
@@ -31,7 +44,7 @@ namespace FitnessApp
             {
                 if (filterContext.Result.GetType() == typeof(HttpUnauthorizedResult))
                 {
-              //      filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Home", action = "Login" }));
+                    filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Home", action = "Login" }));
                 }
             }
         }
