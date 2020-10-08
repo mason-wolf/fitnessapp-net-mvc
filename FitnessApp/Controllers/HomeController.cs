@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -81,10 +82,10 @@ namespace FitnessApp.Controllers
                         if (user == null && !string.IsNullOrEmpty(userProfile.Username) && !string.IsNullOrEmpty(userProfile.Password))
                         {
                             Session["Username"] = userProfile.Username.ToString();
+                            userProfile.Role = "User";
                             db.UserProfiles.Add(userProfile);
                             db.SaveChanges();
                             var newUser = db.UserProfiles.Where(userObj => userObj.Username.Equals(userProfile.Username)).FirstOrDefault();
-                            Debug.WriteLine(newUser.UserId);
                             return RedirectToAction("Dashboard", new { id = newUser.UserId });
                         }
                         else if (user != null)
@@ -101,6 +102,12 @@ namespace FitnessApp.Controllers
             return View(userProfile);
         }
 
+        public ActionResult Workout()
+        {
+            return View();
+        }
+
+      //  [UserAuthorization(Keys = "User")]
         public ActionResult Dashboard(int id)
         {
             if (Session["Username"] != null)
@@ -157,10 +164,12 @@ namespace FitnessApp.Controllers
             }
             catch (RegexMatchTimeoutException e)
             {
+                Debug.WriteLine(e);
                 return false;
             }
             catch (ArgumentException e)
             {
+                Debug.WriteLine(e);
                 return false;
             }
 

@@ -1,10 +1,12 @@
-﻿@model FitnessApp.UserProfile
-
+﻿
 @{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "Workout";
 }
 
-<nav aria-label="breadcrumb" style="margin-top:-25px;">
+<div class="nav">
+
+</div>
+<nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
         <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
@@ -28,13 +30,7 @@
                 else
                 {
                     <div class="col-md-8 content">
-                        @foreach (Workout workout in Model.Workouts)
-                        {
-                            if (workout != null)
-                            {
-                                @workout.Date
-                            }
-                        }
+
                     </div>
                 }
             }
