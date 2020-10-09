@@ -24,10 +24,14 @@
         </div>
     </nav>
 
-    @RenderBody()
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    <main role="main">
+        <div class="container">
+            @RenderBody()
+            @Scripts.Render("~/bundles/jquery")
+            @Scripts.Render("~/bundles/bootstrap")
+            @RenderSection("scripts", required: false)
+        </div>
+     </main>
 
 </body>
 </html>

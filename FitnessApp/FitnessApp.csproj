@@ -129,6 +129,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\WorkoutController.cs" />
     <Compile Include="Models\Exercise.cs" />
     <Compile Include="FitnessAppDb.cs" />
     <Compile Include="Global.asax.cs">
@@ -179,7 +180,9 @@
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Home\Register.cshtml" />
     <Content Include="Views\Home\Dashboard.cshtml" />
-    <Content Include="Views\Home\Workout.cshtml" />
+    <Content Include="Views\Workout\View.cshtml" />
+    <Content Include="Views\Workout\Add.cshtml" />
+    <Content Include="Views\Shared\_SideNav.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

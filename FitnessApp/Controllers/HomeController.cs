@@ -51,7 +51,7 @@ namespace FitnessApp.Controllers
                         Session["UserId"] = userProfile.UserId.ToString();
                         Session["Username"] = userProfile.Username.ToString();
                         FormsAuthentication.SetAuthCookie(userProfile.Username, false);
-                        return RedirectToAction("Dashboard", new { id = user.UserId });
+                        return RedirectToAction("Dashboard",  new { id = user.UserId });
                     }
                     else
                     {
@@ -105,39 +105,45 @@ namespace FitnessApp.Controllers
             return View(userProfile);
         }
 
-        public ActionResult Workout()
-        {
-            return View();
-        }
-
        [UserAuthorization(AccessLevel = "User")]
         public ActionResult Dashboard(int id)
         {
-            if (Session["Username"] != null)
+            if (Session["Username"] != null && ModelState.IsValid)
             {
                 List<Workout> workoutList = new List<Workout>();
 
+                UserProfile userProfile;
+
+                // Retrieve the user and their workouts based on id.
                 using (FitnessAppDb db = new FitnessAppDb())
                 {
                     var workouts = db.Workouts.Where(workout => workout.WorkoutId == id).FirstOrDefault();
+                    userProfile = db.UserProfiles.Where(user => user.UserId == id).FirstOrDefault();
                     workoutList.Add(workouts);
                 }
 
-                UserProfile userProfile = new UserProfile();
-                userProfile.UserId = id;
-
-                if (workoutList[0] == null)
+                if (userProfile != null)
                 {
-                    ViewBag.NoWorkouts = "No workouts yet!";
+                    // Populate the user's workout list and return the view.
+                    if (workoutList[0] == null)
+                    {
+                        ViewBag.NoWorkouts = "No workouts on record yet!";
+                    }
+                    else
+                    {
+                        userProfile.Workouts = workoutList;
+                    }
+                    return View(userProfile);
                 }
                 else
                 {
-                    userProfile.Workouts = workoutList;
+                    // If the id is invalid for the user, redirect to login.
+                    return RedirectToAction("Login");
                 }
-                return View(userProfile);
             }
             else
             {
+                // Redirect to login if the session is invalid.
                 return RedirectToAction("Login");
             }
         }
