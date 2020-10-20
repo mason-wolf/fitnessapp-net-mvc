@@ -19,7 +19,7 @@ namespace FitnessApp
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Exercise>()
-                .Property(e => e.Title)
+                .Property(e => e.Name)
                 .IsUnicode(false);
 
             modelBuilder.Entity<UserProfile>()

@@ -51,7 +51,7 @@ namespace FitnessApp.Controllers
                         Session["UserId"] = userProfile.UserId.ToString();
                         Session["Username"] = userProfile.Username.ToString();
                         FormsAuthentication.SetAuthCookie(userProfile.Username, false);
-                        return RedirectToAction("Dashboard",  new { id = user.UserId });
+                        return RedirectToAction("Dashboard");
                     }
                     else
                     {
@@ -86,6 +86,7 @@ namespace FitnessApp.Controllers
                         {
                             Session["Username"] = userProfile.Username.ToString();
                             userProfile.Role = "User";
+                            userProfile.Username = userProfile.Username.ToLower();
                             db.UserProfiles.Add(userProfile);
                             db.SaveChanges();
                             var newUser = db.UserProfiles.Where(userObj => userObj.Username.Equals(userProfile.Username)).FirstOrDefault();
@@ -106,39 +107,33 @@ namespace FitnessApp.Controllers
         }
 
        [UserAuthorization(AccessLevel = "User")]
-        public ActionResult Dashboard(int id)
+        public ActionResult Dashboard()
         {
             if (Session["Username"] != null && ModelState.IsValid)
             {
-                List<Workout> workoutList = new List<Workout>();
-
                 UserProfile userProfile;
 
-                // Retrieve the user and their workouts based on id.
+                // Retrieve the user and their workouts based on current session.
                 using (FitnessAppDb db = new FitnessAppDb())
                 {
-                    var workouts = db.Workouts.Where(workout => workout.WorkoutId == id).FirstOrDefault();
-                    userProfile = db.UserProfiles.Where(user => user.UserId == id).FirstOrDefault();
-                    workoutList.Add(workouts);
-                }
+                    string username = Session["Username"].ToString().ToLower();
+                    userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();
+                    var workouts = db.Workouts.Where(workout => workout.UserId == userProfile.UserId).ToList();
+                    userProfile.Workouts = workouts;
 
-                if (userProfile != null)
-                {
-                    // Populate the user's workout list and return the view.
-                    if (workoutList[0] == null)
+                    if (userProfile != null)
                     {
-                        ViewBag.NoWorkouts = "No workouts on record yet!";
+                        if (userProfile.Workouts == null)
+                        {
+                            ViewBag.NoWorkouts = "No workouts on record yet!";
+                        }
+                        return View(userProfile);
                     }
                     else
                     {
-                        userProfile.Workouts = workoutList;
+                        // If the id is invalid for the user, redirect to login.
+                        return RedirectToAction("Login");
                     }
-                    return View(userProfile);
-                }
-                else
-                {
-                    // If the id is invalid for the user, redirect to login.
-                    return RedirectToAction("Login");
                 }
             }
             else

@@ -8,25 +8,26 @@
 
 <div class="container">
     <div class="row">
-
         @if (@ViewBag.NoWorkouts != null)
         {
-        <div class="col-md-10 content" style="text-align:center;">
-            <input type="button" class="button" value="Add Workout" style="float:right;" onclick="location.href='@Url.Action("Add", "Workout", new { @id = Model.UserId } )'" /><br />
-            <div class="col-lg-12" style="margin-top:60px;">@ViewBag.NoWorkouts</div>
-        </div>
+            <div class="col-md-10 content" style="text-align:center;">
+                <div class="col-lg-12" style="margin-top:60px;">@ViewBag.NoWorkouts</div>
+            </div>
         }
         else
         {
-        <div class="col-md-8 content">
-            @foreach (Workout workout in Model.Workouts)
-            {
-                if (workout != null)
+            <div class="col-md-8 content">
+                <input type="button" class="button" value="Add Workout" style="float:right;" onclick="location.href='@Url.Action("Add", "Workout")'" /><br />
+                @foreach (Workout workout in Model.Workouts)
                 {
-                    @workout.Date
+                    if (workout != null)
+                    {
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">@workout.Title</li>
+                        </ul>
+                    }
                 }
-            }
-        </div>
+            </div>
         }
     </div>
 </div>

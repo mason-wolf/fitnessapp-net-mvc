@@ -1,7 +1,7 @@
 html,
 body {
     font-family: 'Manrope', sans-serif;
-    font-weight: 800;
+    font-weight: 400;
     margin: 0px;
     padding: 0px;
     font-size:14px;
@@ -16,6 +16,9 @@ body {
     border:1px solid #03355a;
 }
 
+.label {
+    font-weight: 400;
+}
 .breadcrumb {
     font-family: 'Manrope', sans-serif;
     font-weight: 200;
@@ -109,5 +112,11 @@ body {
     border: 1px solid #ccc;
     padding: 1em;
     font-size: 20px;
-    height: 250px;
+}
+
+.button-save {
+    background-color: #1d6000;
+    border:1px solid #1d6000;
+    color:#fff;
+    font-size:18px;
 }

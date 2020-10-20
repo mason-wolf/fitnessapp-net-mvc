@@ -12,7 +12,7 @@ namespace FitnessApp
         public int ExerciseId { get; set; }
 
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Name { get; set; }
 
         public int? Sets { get; set; }
 

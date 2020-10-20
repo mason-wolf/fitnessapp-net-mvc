@@ -40,8 +40,10 @@ namespace FitnessApp
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
             base.OnAuthorization(filterContext);
+
             if (filterContext.Result != null)
             {
+                // Redirect to login if unauthorized.
                 if (filterContext.Result.GetType() == typeof(HttpUnauthorizedResult))
                 {
                     filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Home", action = "Login" }));

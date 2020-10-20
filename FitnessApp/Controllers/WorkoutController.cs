@@ -1,5 +1,6 @@
 ﻿ using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -8,78 +9,83 @@ namespace FitnessApp.Controllers
 {
     public class WorkoutController : Controller
     {
+        private UserProfile userProfile;
+
         [UserAuthorization(AccessLevel = "User")]
-        public ActionResult View(int id)
+        public new ActionResult View()
         {
-            UserProfile userProfile = GetUserProfile(id);
-            List<Workout> workoutList = new List<Workout>();
+            UserProfile userProfile;
 
-            if (IdOwnedByUser(id))
+            // Retrieve the user and their workouts based on current session.
+            using (FitnessAppDb db = new FitnessAppDb())
             {
-                // Retrieve the user and their workouts based on ID.
-                using (FitnessAppDb db = new FitnessAppDb())
-                {
-                    var workouts = db.Workouts.Where(workout => workout.WorkoutId == id).FirstOrDefault();
-                    workoutList.Add(workouts);
-                }
+                string username = Session["Username"].ToString().ToLower();
+                userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();
+                var workouts = db.Workouts.Where(workout => workout.UserId == userProfile.UserId).ToList();
+                userProfile.Workouts = workouts;
 
-                if (workoutList[0] == null)
+                if (userProfile != null)
                 {
-                    ViewBag.NoWorkouts = "No workouts planned.";
+                    if (userProfile.Workouts == null)
+                    {
+                        ViewBag.NoWorkouts = "No workouts planned.";
+                    }
+                    return View(userProfile);
                 }
                 else
                 {
-                    userProfile.Workouts = workoutList;
+                    // If the session invalid for the user, redirect to login.
+                    return RedirectToAction("Login");
                 }
-
-                return View(userProfile);
-            }
-            else
-            {
-                return RedirectToAction("Login", "Home");
             }
         }
 
         [UserAuthorization(AccessLevel = "User")]
-
-        public ActionResult Add(int id)
+        public ActionResult Add()
         {
-            if (IdOwnedByUser(id))
+            ViewBag.ErrorMessage = TempData["formError"];
+            return View(new List<Exercise>());
+        }
+
+        [HttpPost]
+        [UserAuthorization(AccessLevel = "User")]
+        public ActionResult Add(List<Exercise> exercises, string workoutTitle)
+        {
+            Workout newWorkout = new Workout();
+            userProfile = GetUserProfile();
+            newWorkout.UserId = userProfile.UserId;
+            newWorkout.Date = DateTime.Today;
+
+            if (workoutTitle == "")
             {
-                return View(GetUserProfile(id));
+                TempData["formError"] = "Please enter a title for your workout.";
             }
             else
             {
-                return RedirectToAction("Login", "Home");
+                newWorkout.Title = workoutTitle;
+                newWorkout.Exercises = exercises;
+
+                using (FitnessAppDb db = new FitnessAppDb())
+                {
+                    db.Workouts.Add(newWorkout);
+                    db.SaveChanges();
+                }
             }
+            return Json(new { newUrl = Url.Action("Add", "Workout") });
         }
 
         /// <summary>
-        /// Retreives the user profile of the requested ID and checks if the session owner and user ID match the requested ID.
+        /// Retrieve the user's profile based on the current session.
         /// </summary>
-        /// <param name="userId">UserId URL Parameter</param>
-        /// <returns>ownedByUser (true/false)</returns>
-        public bool IdOwnedByUser(int userId)
-        {
-            bool ownedByUser = false;
-
-            UserProfile userProfile = GetUserProfile(userId);
-
-            if (userProfile != null && (string)Session["Username"] == userProfile.Username)
-            {
-                ownedByUser = true;
-            }
-
-            return ownedByUser;
-        }
-
-        public UserProfile GetUserProfile(int userId)
+        /// <returns>UserProfile</returns>
+        public UserProfile GetUserProfile()
         {
             UserProfile userProfile;
 
             using (FitnessAppDb db = new FitnessAppDb())
             {
-                userProfile = db.UserProfiles.Where(user => user.UserId == userId).FirstOrDefault();
+                string username = Session["username"].ToString().ToLower();
+                userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();
             }
 
             return userProfile;
