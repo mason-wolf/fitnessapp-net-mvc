@@ -5,9 +5,9 @@ namespace FitnessApp
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    public partial class FitnessAppDb : DbContext
+    public partial class FitnessAppDbContext : DbContext
     {
-        public FitnessAppDb()
+        public FitnessAppDbContext()
             : base("name=FitnessAppDB")
         {
         }

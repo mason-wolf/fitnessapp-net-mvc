@@ -23,7 +23,7 @@ namespace FitnessApp
 
                 if (!string.IsNullOrEmpty(username))
                 {
-                    using (FitnessAppDb db = new FitnessAppDb())
+                    using (FitnessAppDbContext db = new FitnessAppDbContext())
                     {
                         var userRole = (from users in db.UserProfiles where users.Username == username select new { users.Role }).FirstOrDefault();
 

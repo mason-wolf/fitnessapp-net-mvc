@@ -42,7 +42,7 @@ namespace FitnessApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (FitnessAppDb db = new FitnessAppDb())
+                using (FitnessAppDbContext db = new FitnessAppDbContext())
                 {
                     var user = db.UserProfiles.Where(userObj => userObj.Username.Equals(userProfile.Username) && userObj.Password.Equals(userProfile.Password)).FirstOrDefault();
 
@@ -72,7 +72,7 @@ namespace FitnessApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (FitnessAppDb db = new FitnessAppDb())
+                using (FitnessAppDbContext db = new FitnessAppDbContext())
                 {
                     var user = db.UserProfiles.Where(userObj => userObj.Username.Equals(userProfile.Username) && userObj.Password.Equals(userProfile.Password)).FirstOrDefault();
 
@@ -114,7 +114,7 @@ namespace FitnessApp.Controllers
                 UserProfile userProfile;
 
                 // Retrieve the user and their workouts based on current session.
-                using (FitnessAppDb db = new FitnessAppDb())
+                using (FitnessAppDbContext db = new FitnessAppDbContext())
                 {
                     string username = Session["Username"].ToString().ToLower();
                     userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();

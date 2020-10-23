@@ -17,7 +17,7 @@ namespace FitnessApp.Controllers
             UserProfile userProfile;
 
             // Retrieve the user and their workouts based on current session.
-            using (FitnessAppDb db = new FitnessAppDb())
+            using (FitnessAppDbContext db = new FitnessAppDbContext())
             {
                 string username = Session["Username"].ToString().ToLower();
                 userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();
@@ -59,21 +59,90 @@ namespace FitnessApp.Controllers
             if (workoutTitle == "")
             {
                 TempData["formError"] = "Please enter a title for your workout.";
+                return Json(new { newUrl = Url.Action("Add", "Workout") });
             }
             else
             {
                 newWorkout.Title = workoutTitle;
                 newWorkout.Exercises = exercises;
 
-                using (FitnessAppDb db = new FitnessAppDb())
+                using (FitnessAppDbContext db = new FitnessAppDbContext())
                 {
                     db.Workouts.Add(newWorkout);
                     db.SaveChanges();
                 }
+
+                return Json(new { newUrl = Url.Action("View", "Workout") });
             }
-            return Json(new { newUrl = Url.Action("Add", "Workout") });
         }
 
+        [UserAuthorization(AccessLevel = "User")]
+        public ActionResult Edit(int workoutId)
+        {
+            UserProfile userProfile = GetUserProfile();
+            List<Exercise> exerciseList = new List<Exercise>();
+
+            using (FitnessAppDbContext Db = new FitnessAppDbContext())
+            {
+                var userWorkout = Db.Workouts.Where(workout => workout.WorkoutId == workoutId && workout.UserId == userProfile.UserId).FirstOrDefault();
+
+                if (userWorkout.Exercises != null)
+                {
+                    ViewBag.WorkoutTitle = userWorkout.Title;
+                    ViewBag.WorkoutId = workoutId;
+                    return View(userWorkout.Exercises);
+                }
+                else
+                {
+                    return RedirectToAction("Dashboard");
+                }
+            }
+        }
+
+        [UserAuthorization(AccessLevel = "User")]
+        [HttpPost]
+        public ActionResult Edit(List<Exercise> exercises, string workoutTitle)
+        {
+            int workoutId = 0;
+            userProfile = GetUserProfile();
+
+            if (workoutTitle == "")
+            {
+                TempData["formError"] = "Please enter a title for your workout.";
+                return Json(new { newUrl = Url.Action("View", "Workout") });
+            }
+            else
+            {
+                using (FitnessAppDbContext Db = new FitnessAppDbContext())
+                {
+                    var userWorkout = Db.Workouts.Where(workout => workout.Title == workoutTitle && workout.UserId == userProfile.UserId).FirstOrDefault();
+                    userWorkout.Exercises.Clear();
+                    userWorkout.Exercises = exercises;
+                    userWorkout.Title = workoutTitle;
+                    workoutId = userWorkout.WorkoutId;
+                    Db.SaveChanges();
+                }
+
+                return Json(new { newUrl = Url.Action("Edit", "Workout", new { @workoutId = workoutId } ) });
+            }
+        }
+
+        [UserAuthorization(AccessLevel = "User")]
+        [HttpPost]
+        public ActionResult Delete(int workoutId)
+        {
+            userProfile = GetUserProfile();
+
+            using (FitnessAppDbContext db = new FitnessAppDbContext())
+            {
+                var workoutToDelete = db.Workouts.Where(workout => workout.WorkoutId == workoutId && workout.UserId == userProfile.UserId).FirstOrDefault();
+                db.Workouts.Attach(workoutToDelete);
+                db.Workouts.Remove(workoutToDelete);
+                db.SaveChanges();
+            }
+
+            return RedirectToAction("View");
+        }
         /// <summary>
         /// Retrieve the user's profile based on the current session.
         /// </summary>
@@ -82,7 +151,7 @@ namespace FitnessApp.Controllers
         {
             UserProfile userProfile;
 
-            using (FitnessAppDb db = new FitnessAppDb())
+            using (FitnessAppDbContext db = new FitnessAppDbContext())
             {
                 string username = Session["username"].ToString().ToLower();
                 userProfile = db.UserProfiles.Where(user => user.Username == username).FirstOrDefault();

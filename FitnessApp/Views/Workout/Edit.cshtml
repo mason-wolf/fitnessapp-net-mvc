@@ -1,0 +1,116 @@
+﻿@model IEnumerable<FitnessApp.Exercise>
+@{
+    ViewBag.Title = "Edit";
+}
+
+@Html.Partial("~/Views/Shared/_SideNav.cshtml")
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 content">
+            Workout Title<br /><br />
+            <input type="text" class="form-control" id="WorkoutTitle" value="@ViewBag.WorkoutTitle" required /><br />
+            @if (@ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger" role="alert" style="font-size:14px;">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+            <table class="table" id="exerciseTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Exercise</th>
+                        <th scope="col">Sets</th>
+                        <th scope="col">Reps</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Exercise exercise in Model)
+                    {
+                        <tr>
+                            <td>@exercise.Name</td>
+                            <td>@exercise.Sets</td>
+                            <td>@exercise.Reps</td>
+                            <th scope="row"><input type="button" value="Remove" class="btn btn-secondary" onclick="Remove(this)" /></th>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th scope="row"><input type="text" id="Name" class="form-control" /></th>
+                        <th scope="row"><input type="text" id="Sets" class="form-control" /></th>
+                        <th scope="row"><input type="text" id="Reps" class="form-control" /></th>
+                        <th scope="row"><input type="button" id="addExercise" class="btn btn-primary" value="Add" /></th>
+                    </tr>
+                </tfoot>
+            </table>
+            <input type="button" value="Save Workout" class="btn btn-success" id="saveButton" />
+            <button type="button" class="btn btn-danger" style="float:right;" onclick="@Url.Action("Delete", "Workout", new { @workoutId = ViewBag.WorkoutId })">Delete Workout</button>
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+            <script type="text/javascript" src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+            <script type="text/javascript">
+                $("body").on("click", "#addExercise", function () {
+
+                    // Assign data from the current row to append to the next.
+                    var name = $("#Name");
+                    var sets = $("#Sets");
+                    var reps = $("#Reps");
+                    var tableBody = $("#exerciseTable > TBODY")[0];
+
+                    if (!name.val() == "") {
+                        // Create cells for exercise title, sets and reps.
+                        var row = tableBody.insertRow(-1);
+                        var cell = $(row.insertCell(-1));
+                        cell.html(name.val());
+                        cell = $(row.insertCell(-1));
+                        cell.html(sets.val());
+                        cell = $(row.insertCell(-1));
+                        cell.html(reps.val());
+                        cell = $(row.insertCell(-1));
+                        var removeButton = $("<input/>");
+                        // Create a remove button for each item.
+                        removeButton.attr("type", "button");
+                        removeButton.attr("onclick", "Remove(this)");
+                        removeButton.val("Remove");
+                        removeButton.attr("class", "btn btn-secondary");
+                        cell.append(removeButton);
+
+                        // Clear the input boxes.
+                        name.val("");
+                        sets.val("");
+                        reps.val("");
+                    }
+                });
+
+                function Remove(button) {
+                    var row = $(button).closest("TR");
+                    var name = $("TD", row).eq(0).html();
+                    var table = $("#exerciseTable")[0];
+                    table.deleteRow(row[0].rowIndex);
+                };
+
+                $("body").on("click", "#saveButton", function () {
+                    var exercises = new Array();
+                    var workoutTitle = $("#WorkoutTitle").val();
+                    $("#exerciseTable TBODY TR").each(function () {
+                        var row = $(this);
+                        var exercise = {};
+                        exercise.name = row.find("TD").eq(0).html();
+                        exercise.sets = row.find("TD").eq(1).html();
+                        exercise.reps = row.find("TD").eq(2).html();
+                        exercises.push(exercise);
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/Workout/Edit/",
+                        data: JSON.stringify({ 'exercises': exercises, 'workoutTitle': workoutTitle }),
+                        contentType: "application/json; charset=utf-8"
+                    }).done(function (res) {
+                        window.location.href = res.newUrl;
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
