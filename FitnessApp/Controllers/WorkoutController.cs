@@ -141,7 +141,7 @@ namespace FitnessApp.Controllers
                 db.SaveChanges();
             }
 
-            return RedirectToAction("View");
+            return RedirectToAction("View", "Workout");
         }
         /// <summary>
         /// Retrieve the user's profile based on the current session.
